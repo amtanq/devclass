@@ -1,0 +1,89 @@
+<title>SpeedTest</title>
+<link rel="icon" href="https://img.icons8.com/fluency/198/star.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@200">
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: "Roboto Mono", sans-serif;
+    color: #eee;
+    background: #222;
+  }
+
+  section {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  h3 {
+    white-space: pre-wrap;
+  }
+  
+  h3.muted {
+    color: #888;
+    animation: text-color .5s linear infinite;
+  }
+
+  @keyframes text-color {
+    50% {
+      color: #088;
+    }
+  }
+
+  svg {
+    position: absolute;
+    top: 0;
+    border: 0;
+    right: 0;
+    fill: #088;
+    color: #eee;
+  }
+</style>
+
+<a href="https://github.com/amtanq/devclass">
+  <svg width="80" height="80" viewBox="0 0 250 250">
+    <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+    <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor"></path>
+    <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor"></path>
+  </svg>
+</a>
+
+<section>
+  <h1>SpeedTest</h1>
+  <h3 class="muted">000.00  bps</h3>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js"></script>
+<script>
+  let maxSpeed = 0;
+  let maxSpeedTime = Date.now();
+
+  function onDownloadProgress(event) {
+    const bytesPerMs = event.loaded / event.timeStamp;
+    const speed = Math.max(bytesPerMs * 8000, maxSpeed);
+    if (maxSpeed !== speed) maxSpeedTime = Date.now();
+    else if (Date.now() - maxSpeedTime >= 5000) return controller.abort();
+
+    const factor = Math.floor(Math.log(speed) / Math.log(1024));
+    const speedText = (speed / Math.pow(1024, factor)).toFixed(2).padStart(6, "0");
+    document.querySelector("h3").textContent = `${speedText} ${" kmgtp"[factor]}bps`;
+    maxSpeed = speed;
+  }
+
+  function endReport() {
+    document.querySelector("h3").classList.remove("muted");
+  }
+
+  const timeout = 60_000;
+  const controller = new AbortController();
+  axios("random", { signal: controller.signal, timeout, onDownloadProgress })
+    .then(endReport)
+    .catch(endReport);
+</script>
