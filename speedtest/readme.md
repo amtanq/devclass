@@ -13,3 +13,6 @@ $ du -h random
 $ aws s3 mb s3://bucket
 $ aws s3 cp . s3://bucket --acl public-read --recursive
 ```
+
+### Demo
+![](readme.gif)
